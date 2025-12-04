@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tellepsen - Construction Scope Automation Proposal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1f3a 0%, #0a0e27 100%);
+            color: #e0e6ed;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 20, 40, 0.8);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 107, 53, 0.2);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            color: #ff6b35;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .logo p {
+            color: #6b7b9a;
+            font-size: 0.85rem;
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 107, 53, 0.1);
+            border-left-color: #ff6b35;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 107, 53, 0.15);
+            border-left-color: #ff6b35;
+            color: #ff6b35;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 2rem;
+            width: calc(100% - 280px);
+        }
+
+        .header {
+            background: rgba(15, 20, 40, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .header h2 {
+            color: #ff6b35;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            color: #a0aec0;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 53, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e6ed;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: rgba(15, 20, 40, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h3 {
+            color: #ff6b35;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h4 {
+            color: #ff6b35;
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .card p {
+            color: #a0aec0;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card li {
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 3px solid #ff6b35;
+            color: #e0e6ed;
+        }
+
+        .card strong {
+            color: #ff6b35;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-card {
+            background: rgba(255, 107, 53, 0.1);
+            border: 2px solid #ff6b35;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .pricing-card .old-price {
+            text-decoration: line-through;
+            color: #6b7b9a;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-card .new-price {
+            font-size: 3rem;
+            color: #ff6b35;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .pricing-card .savings {
+            background: #ff6b35;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(15, 20, 40, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            color: #ff6b35;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 53, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 107, 53, 0.7);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>Tellepsen</h1>
+                <p>Construction Scope Automation</p>
+            </div>
+            <nav>
+                <div class="nav-item active" data-section="overview">
+                    <span class="nav-icon">🏗️</span>
+                    <span>Overview</span>
+                </div>
+                <div class="nav-item" data-section="capabilities">
+                    <span class="nav-icon">🤖</span>
+                    <span>System Capabilities</span>
+                </div>
+                <div class="nav-item" data-section="deliverables">
+                    <span class="nav-icon">📦</span>
+                    <span>Deliverables</span>
+                </div>
+                <div class="nav-item" data-section="investment">
+                    <span class="nav-icon">💰</span>
+                    <span>Investment</span>
+                </div>
+                <div class="nav-item" data-section="roi">
+                    <span class="nav-icon">📈</span>
+                    <span>ROI & Impact</span>
+                </div>
+                <div class="nav-item" data-section="next-steps">
+                    <span class="nav-icon">🚀</span>
+                    <span>Next Steps</span>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Overview Section -->
+            <div class="content-section active" id="overview">
+                <div class="header">
+                    <h2>Construction Scope Automation & Multi-Business AI System</h2>
+                    <p>Transform your SOW creation process with AI-powered intelligence that reads blueprints, analyzes specs, and generates contract-ready scopes of work in your voice.</p>
+                    <div class="action-buttons">
+                        <a href="https://mindfulaidesign.github.io/ConstructionSOWbot/" target="_blank" class="btn btn-primary">
+                            🚀 View GPT Prototype
+                        </a>
+                        <a href="https://drive.google.com/file/d/1nYqDZDoNfcASkpnq8EMiafREBNO-DtzM/view?usp=sharing" target="_blank" class="btn btn-secondary">
+                            📄 Download PDF Proposal
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>The Challenge</h3>
+                    <p>Your current SOW creation process requires extensive manual cross-referencing of blueprints, specifications, submittals, and contract documents. The more complex the project, the greater the risk of oversight.</p>
+                    
+                    <h4>What You Need:</h4>
+                    <ul>
+                        <li>🎯 <strong>Faster SOW Development</strong> - Reduce time from intake to contract-ready document</li>
+                        <li>✅ <strong>Fewer Omissions</strong> - Ensure nothing gets missed across large document sets</li>
+                        <li>📐 <strong>Accurate Blueprint Reading</strong> - AI that understands complex architectural drawings</li>
+                        <li>🏢 <strong>Multi-Business Support</strong> - Separate workspaces for different business lines</li>
+                        <li>📝 <strong>Consistent Tone</strong> - SOWs that match your writing style and contract language</li>
+                        <li>🔒 <strong>Secure Workspace</strong> - Project data protected and never used for AI training</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>The Solution</h3>
+                    <p>The <strong>Tellepsen Construction Scope Automation System</strong> - a private, custom-built AI ecosystem designed to dramatically improve the speed, accuracy, and consistency of your SOW creation process.</p>
+                    
+                    <p>This system transforms raw construction documents into polished, contract-ready scopes of work through:</p>
+                    <ul>
+                        <li>Custom Blueprint + Scope-of-Work GPT trained on your contracts</li>
+                        <li>Multi-Document Intelligence Engine that reads and analyzes all project documents</li>
+                        <li>Structured Intake → SOW workflow for repeatability</li>
+                        <li>Multi-business AI workspace with data protection</li>
+                        <li>Contract tone and style alignment</li>
+                        <li>Training for team adoption and long-term success</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Capabilities Section -->
+            <div class="content-section" id="capabilities">
+                <div class="header">
+                    <h2>System Capabilities</h2>
+                    <p>What the AI system does for you</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>📐 Blueprint + Scope-of-Work GPT</h3>
+                        <p>A custom AI model trained specifically on your drawings, specs, and example contracts.</p>
+                        <p><strong>Capabilities:</strong></p>
+                        <ul>
+                            <li>Reads complex architectural drawings</li>
+                            <li>Understands construction terminology</li>
+                            <li>Produces detailed, contract-ready SOWs</li>
+                            <li>Maintains consistency across projects</li>
+                            <li>Writes in your voice and style</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>📄 Multi-Document Intelligence</h3>
+                        <p>Reads and analyzes multiple document types simultaneously.</p>
+                        <p><strong>Processes:</strong></p>
+                        <ul>
+                            <li>Blueprints and floor plans</li>
+                            <li>Specification sheets</li>
+                            <li>Drawing sets</li>
+                            <li>Submittals</li>
+                            <li>Images and photos</li>
+                            <li>Contract documents</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>✍️ Contract Style Training</h3>
+                        <p>Teaches your AI system your preferred contract language.</p>
+                        <p><strong>Ensures:</strong></p>
+                        <ul>
+                            <li>Consistent tone across all SOWs</li>
+                            <li>Your preferred phrasing</li>
+                            <li>Standard formatting</li>
+                            <li>Proper contract structure</li>
+                            <li>Professional presentation</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>⚙️ Intake → SOW Workflow</h3>
+                        <p>A guided, repeatable process from document upload to final SOW.</p>
+                        <p><strong>Creates:</strong></p>
+                        <ul>
+                            <li>Standardized procedures</li>
+                            <li>Quality assurance checkpoints</li>
+                            <li>Faster turnaround times</li>
+                            <li>Reduced errors</li>
+                            <li>Predictable outcomes</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>🔒 Compliance & Guardrails</h3>
+                        <p>Ensures AI stays within scope and follows rules.</p>
+                        <p><strong>Prevents:</strong></p>
+                        <ul>
+                            <li>Hard pricing in outputs</li>
+                            <li>Unauthorized vendor references</li>
+                            <li>Speculative information</li>
+                            <li>Off-topic responses</li>
+                            <li>Data leakage</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>🏢 Secure Business Workspace</h3>
+                        <p>Your team's private AI environment with full data protection.</p>
+                        <p><strong>Includes:</strong></p>
+                        <ul>
+                            <li>Confidentiality guardrails</li>
+                            <li>Version control</li>
+                            <li>Project folders</li>
+                            <li>No training on your uploads</li>
+                            <li>Monthly maintenance</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deliverables Section -->
+            <div class="content-section" id="deliverables">
+                <div class="header">
+                    <h2>Complete Deliverables Package</h2>
+                    <p>Everything you need for successful implementation</p>
+                </div>
+
+                <div class="card">
+                    <h3>🤖 AI Systems (3 Components)</h3>
+                    <ul>
+                        <li><strong>1. Blueprint + Scope-of-Work GPT</strong> - Custom AI model trained on your documents and contracts</li>
+                        <li><strong>2. Multi-Document Intelligence Engine</strong> - Reads blueprints, specs, drawings, submittals, and images</li>
+                        <li><strong>3. Contract Style Training Module</strong> - Ensures tone, phrasing, formatting, and structure consistency</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>⚙️ Workflows & Setup (3 Components)</h3>
+                    <ul>
+                        <li><strong>4. Intake → SOW Workflow Builder</strong> - Guided process for turning documents into SOWs</li>
+                        <li><strong>5. Compliance Configuration</strong> - No pricing, no speculation, clear boundaries</li>
+                        <li><strong>6. Secure Business Workspace + Monthly Maintenance</strong> - Private workspace with version control and data protection</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🎓 Training & Knowledge Transfer (2 Components)</h3>
+                    <ul>
+                        <li><strong>7. Two (2) Live Training Sessions</strong> - Interactive training on blueprint ingestion, SOW generation, and best practices</li>
+                        <li><strong>8. Implementation Playbook PDF</strong> - Workflow steps, guardrails, prompt templates, and troubleshooting guide</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Investment Section -->
+            <div class="content-section" id="investment">
+                <div class="header">
+                    <h2>Investment & Value</h2>
+                    <p>Enterprise-grade AI at a transformational price</p>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="old-price">À la carte value: $23,450</div>
+                    <div class="new-price">$14,900</div>
+                    <p style="color: #a0aec0; margin-bottom: 1rem;">Complete Bundle Price</p>
+                    <div class="savings">Save $8,550 (36% Discount)</div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <h3>What's Included in Your Investment</h3>
+                    <ul>
+                        <li>✅ Custom Blueprint + SOW GPT trained on your contracts</li>
+                        <li>✅ Multi-Document Intelligence Engine</li>
+                        <li>✅ Contract Style Training Module</li>
+                        <li>✅ Intake → SOW Workflow Builder</li>
+                        <li>✅ Compliance Configuration & Guardrails</li>
+                        <li>✅ Secure Business Workspace + Monthly Maintenance</li>
+                        <li>✅ Two (2) Live Training Sessions</li>
+                        <li>✅ Implementation Playbook PDF</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Flexible Payment Options</h3>
+                    
+                    <h4>Option 1 - 50/50 Split</h4>
+                    <ul>
+                        <li>50% deposit ($7,450)</li>
+                        <li>50% at final delivery ($7,450)</li>
+                    </ul>
+
+                    <h4>Option 2 - 1/3 Milestones</h4>
+                    <ul>
+                        <li>33% deposit ($4,917)</li>
+                        <li>33% after workflow implementation ($4,917)</li>
+                        <li>33% at final delivery ($4,916)</li>
+                    </ul>
+
+                    <h4>Option 3 - 1/4 Milestone Plan</h4>
+                    <ul>
+                        <li>25% deposit ($3,725)</li>
+                        <li>25% after GPT build ($3,725)</li>
+                        <li>25% after workflow build ($3,725)</li>
+                        <li>25% at final delivery ($3,725)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ROI Section -->
+            <div class="content-section" id="roi">
+                <div class="header">
+                    <h2>ROI & Business Impact</h2>
+                    <p>Quantifiable improvements to your operations</p>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">70%</div>
+                        <div class="stat-label">Faster SOW Creation</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">85%</div>
+                        <div class="stat-label">Reduction in Errors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">40hrs</div>
+                        <div class="stat-label">Saved Per Month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">100%</div>
+                        <div class="stat-label">Consistency</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Time Savings Breakdown</h3>
+                    <p><strong>Current Process:</strong> 4-8 hours per SOW (manual document review, cross-referencing, drafting, revision)</p>
+                    <p><strong>With AI System:</strong> 1-2 hours per SOW (document upload, AI generation, final review)</p>
+                    <p><strong>Time Saved:</strong> 3-6 hours per SOW</p>
+                    <p><strong>Monthly Impact:</strong> Assuming 10 SOWs per month = 30-60 hours saved</p>
+                </div>
+
+                <div class="card">
+                    <h3>Quality Improvements</h3>
+                    <ul>
+                        <li><strong>Reduced Omissions:</strong> AI reads entire document sets - nothing gets missed</li>
+                        <li><strong>Consistent Quality:</strong> Every SOW maintains your standards</li>
+                        <li><strong>Fewer Revisions:</strong> Get it right the first time</li>
+                        <li><strong>Better Client Confidence:</strong> Professional, detailed, accurate scopes</li>
+                        <li><strong>Scalability:</strong> Handle more projects without adding staff</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Strategic Advantages</h3>
+                    <ul>
+                        <li><strong>Competitive Edge:</strong> Faster proposal turnaround wins more bids</li>
+                        <li><strong>Risk Reduction:</strong> Comprehensive SOWs protect against scope creep</li>
+                        <li><strong>Team Efficiency:</strong> Staff focuses on high-value work, not admin</li>
+                        <li><strong>Multi-Business Support:</strong> Scale across all your business lines</li>
+                        <li><strong>Knowledge Capture:</strong> Your best practices encoded in AI</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Next Steps Section -->
+            <div class="content-section" id="next-steps">
+                <div class="header">
+                    <h2>Ready to Transform Your SOW Process?</h2>
+                    <p>Let's get started building your custom AI system</p>
+                    <div class="action-buttons">
+                        <a href="https://mindfulaidesign.github.io/ConstructionSOWbot/" target="_blank" class="btn btn-primary">
+                            🚀 View GPT Prototype
+                        </a>
+                        <a href="https://drive.google.com/file/d/1nYqDZDoNfcASkpnq8EMiafREBNO-DtzM/view?usp=sharing" target="_blank" class="btn btn-secondary">
+                            📄 Download PDF Proposal
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Implementation Timeline</h3>
+                    <ul>
+                        <li><strong>Week 1-2:</strong> Discovery & document collection - We gather your sample contracts, blueprints, and specifications</li>
+                        <li><strong>Week 3-4:</strong> GPT training & customization - Build your custom AI model</li>
+                        <li><strong>Week 5-6:</strong> Workflow configuration - Set up intake processes and guardrails</li>
+                        <li><strong>Week 7:</strong> Workspace setup & testing - Configure your secure environment</li>
+                        <li><strong>Week 8:</strong> Training sessions - Live team training and knowledge transfer</li>
+                        <li><strong>Week 9:</strong> Go-live & ongoing support - Begin using the system with monthly maintenance</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>What Happens Next?</h3>
+                    <ol style="list-style: decimal; margin-left: 2rem;">
+                        <li style="margin-bottom: 1rem;"><strong>Review the Proposal</strong> - Explore this interactive dashboard and try the GPT prototype</li>
+                        <li style="margin-bottom: 1rem;"><strong>Schedule a Follow-Up</strong> - Discuss any questions and select your payment plan</li>
+                        <li style="margin-bottom: 1rem;"><strong>Sign Agreement</strong> - Execute the contract and submit deposit</li>
+                        <li style="margin-bottom: 1rem;"><strong>Begin Implementation</strong> - We start building your custom AI system</li>
+                    </ol>
+                </div>
+
+                <div class="card">
+                    <h3>Contact Information</h3>
+                    <p><strong>Mindful AI Design</strong></p>
+                    <p>Where AI Strategy Meets Human-Centered Design</p>
+                    <p style="margin-top: 1.5rem;">We look forward to helping Tellepsen implement a powerful, AI-driven construction automation system that enhances accuracy, reduces risk, and transforms your operational efficiency.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        const navItems = document.querySelectorAll('.nav-item');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.getAttribute('data-section');
+                
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                contentSections.forEach(content => content.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
